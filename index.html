@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maverick UW Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink-900: #100E0A;
+    --ink-800: #181410;
+    --ink-700: #211C15;
+    --ink-600: #2A241B;
+    --line: #3A3228;
+    --line-soft: #2E281F;
+    --brass: #C9A24B;
+    --brass-bright: #E6C879;
+    --brass-deep: #8C6E2E;
+    --cream: #EFE7D6;
+    --cream-dim: #B0A691;
+    --cream-faint: #7C7361;
+    --amber: #DB923F;
+    --oxblood: #BE4B33;
+    --radius: 10px;
+    --radius-sm: 7px;
+    --display: "Fraunces", Georgia, serif;
+    --body: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1d1812 0%, transparent 60%),
+      var(--ink-900);
+    color: var(--cream);
+    font-family: var(--body);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---- Masthead ---- */
+  header.masthead {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 0 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: linear-gradient(160deg, var(--brass-bright), var(--brass-deep));
+    color: var(--ink-900); font-family: var(--display); font-weight: 600;
+    font-size: 22px; line-height: 1;
+    box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 6px 16px rgba(0,0,0,.4);
+  }
+  .brand-name { font-family: var(--display); font-size: 20px; letter-spacing: .3px; }
+  .brand-name .sub { display: block; font-family: var(--body); font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--cream-faint); margin-top: 2px; }
+  .masthead .meta { font-family: var(--mono); font-size: 11px; color: var(--cream-faint); text-align: right; }
+
+  /* ---- Tabs ---- */
+  nav.tabs { display: flex; gap: 2px; margin: 22px 0 26px; border-bottom: 1px solid var(--line-soft); }
+  nav.tabs button {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--body); font-size: 13px; font-weight: 500;
+    color: var(--cream-dim); padding: 11px 16px 13px;
+    border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
+  }
+  nav.tabs button:hover { color: var(--cream); }
+  nav.tabs button.active { color: var(--brass-bright); border-bottom-color: var(--brass); }
+
+  /* ---- Panels ---- */
+  .panel { display: none; animation: fade .25s ease; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .card {
+    background: var(--ink-800);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  .card + .card { margin-top: 0; }
+
+  h2.section-title { font-family: var(--display); font-weight: 500; font-size: 19px; margin-bottom: 4px; }
+  .section-sub { color: var(--cream-dim); font-size: 13px; margin-bottom: 18px; }
+
+  label.field-label { display: block; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--cream-faint); margin-bottom: 7px; font-weight: 500; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  select, input[type=text], textarea {
+    width: 100%; background: var(--ink-700); color: var(--cream);
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 10px 12px; font-family: var(--body); font-size: 13.5px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  select:focus, input:focus, textarea:focus {
+    outline: none; border-color: var(--brass-deep);
+    box-shadow: 0 0 0 3px rgba(201,162,75,.13);
+  }
+  textarea { resize: vertical; line-height: 1.6; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23B0A691' stroke-width='1.4' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  /* ---- Dropzone ---- */
+  .dropzone {
+    border: 1.5px dashed var(--line); border-radius: var(--radius);
+    padding: 30px 20px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s;
+    background: var(--ink-700);
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--brass); background: #221c12; }
+  .dropzone .dz-icon { font-family: var(--display); font-size: 26px; color: var(--brass); margin-bottom: 6px; }
+  .dropzone .dz-main { font-size: 14px; }
+  .dropzone .dz-sub { font-size: 12px; color: var(--cream-faint); margin-top: 3px; }
+  .file-chip {
+    display: inline-flex; align-items: center; gap: 9px; margin-top: 12px;
+    background: var(--ink-600); border: 1px solid var(--line);
+    border-radius: 20px; padding: 6px 14px; font-size: 12.5px; font-family: var(--mono);
+  }
+  .file-chip button { background: none; border: none; color: var(--cream-faint); cursor: pointer; font-size: 15px; line-height: 1; }
+  .file-chip button:hover { color: var(--oxblood); }
+
+  /* ---- Toggles ---- */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-top: 1px solid var(--line-soft); }
+  .toggle-row:first-of-type { border-top: none; }
+  .toggle-row .tr-text { font-size: 13px; }
+  .toggle-row .tr-text small { display: block; color: var(--cream-faint); font-size: 11.5px; margin-top: 1px; }
+  .switch { position: relative; width: 42px; height: 23px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider { position: absolute; inset: 0; background: var(--ink-600); border: 1px solid var(--line); border-radius: 20px; cursor: pointer; transition: .2s; }
+  .switch .slider:before { content: ""; position: absolute; height: 17px; width: 17px; left: 2px; top: 2px; background: var(--cream-dim); border-radius: 50%; transition: .2s; }
+  .switch input:checked + .slider { background: linear-gradient(160deg, var(--brass), var(--brass-deep)); border-color: var(--brass-deep); }
+  .switch input:checked + .slider:before { transform: translateX(19px); background: var(--ink-900); }
+
+  /* ---- Buttons ---- */
+  .btn {
+    font-family: var(--body); font-size: 13.5px; font-weight: 600;
+    border-radius: var(--radius-sm); padding: 12px 20px; cursor: pointer;
+    border: 1px solid transparent; transition: transform .08s, filter .15s, background .15s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: linear-gradient(160deg, var(--brass-bright), var(--brass)); color: var(--ink-900); width: 100%; box-shadow: 0 1px 0 rgba(255,255,255,.22) inset; }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-primary:disabled { background: var(--ink-600); color: var(--cream-faint); cursor: not-allowed; box-shadow: none; }
+  .btn-ghost { background: var(--ink-700); border-color: var(--line); color: var(--cream); }
+  .btn-ghost:hover { border-color: var(--brass-deep); color: var(--brass-bright); }
+  .btn-sm { padding: 8px 14px; font-size: 12.5px; }
+
+  /* ---- Verdict seal (signature element) ---- */
+  .verdict-wrap { display: flex; align-items: center; gap: 22px; padding: 6px 0 18px; border-bottom: 1px solid var(--line-soft); margin-bottom: 18px; }
+  .seal {
+    width: 92px; height: 92px; flex: none; border-radius: 50%;
+    display: grid; place-items: center; text-align: center;
+    border: 2px solid var(--brass-deep);
+    background: radial-gradient(circle at 35% 30%, #241d12, #14110b);
+    box-shadow: 0 0 0 4px var(--ink-800), 0 0 0 5px var(--line), 0 8px 22px rgba(0,0,0,.5);
+    position: relative;
+  }
+  .seal:before { content: ""; position: absolute; inset: 7px; border: 1px dashed rgba(201,162,75,.35); border-radius: 50%; }
+  .seal .seal-txt { font-family: var(--display); font-weight: 600; font-size: 11px; line-height: 1.15; letter-spacing: .5px; padding: 0 8px; }
+  .seal.approve { border-color: var(--brass); } .seal.approve .seal-txt { color: var(--brass-bright); }
+  .seal.conditions { border-color: var(--amber); } .seal.conditions .seal-txt { color: var(--amber); }
+  .seal.decline { border-color: var(--oxblood); } .seal.decline .seal-txt { color: var(--oxblood); }
+  .seal.info { border-color: var(--cream-faint); } .seal.info .seal-txt { color: var(--cream-dim); }
+  .verdict-meta h3 { font-family: var(--display); font-size: 22px; font-weight: 500; }
+  .verdict-meta .vm-line { color: var(--cream-dim); font-size: 13px; margin-top: 3px; }
+
+  /* ---- Metrics row ---- */
+  .metrics { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .metric { flex: 1; min-width: 110px; background: var(--ink-700); border: 1px solid var(--line-soft); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .metric .m-label { font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--cream-faint); }
+  .metric .m-val { font-family: var(--mono); font-size: 19px; font-weight: 600; color: var(--brass-bright); margin-top: 4px; }
+
+  /* ---- Category accordion ---- */
+  .section-label { font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--cream-faint); margin: 18px 0 9px; font-weight: 600; }
+  .cat { border: 1px solid var(--line-soft); border-radius: var(--radius-sm); margin-bottom: 8px; overflow: hidden; }
+  .cat-head { display: flex; align-items: center; gap: 11px; padding: 12px 14px; cursor: pointer; background: var(--ink-700); }
+  .cat-head:hover { background: var(--ink-600); }
+  .cat-name { flex: 1; font-size: 13.5px; font-weight: 500; }
+  .pill { font-size: 10px; letter-spacing: .6px; text-transform: uppercase; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .pill.pass { background: rgba(201,162,75,.16); color: var(--brass-bright); }
+  .pill.warn { background: rgba(219,146,63,.16); color: var(--amber); }
+  .pill.fail { background: rgba(190,75,51,.18); color: #e08a74; }
+  .cat-chev { color: var(--cream-faint); font-family: var(--mono); transition: transform .2s; }
+  .cat.open .cat-chev { transform: rotate(90deg); }
+  .cat-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+  .cat.open .cat-body { max-height: 1400px; }
+  .cat-body-inner { padding: 4px 16px 16px; font-size: 13px; line-height: 1.7; color: var(--cream); border-top: 1px solid var(--line-soft); }
+
+  .block-warn { font-size: 13px; line-height: 1.75; padding: 13px 15px; border: 1px solid rgba(219,146,63,.3); border-radius: var(--radius-sm); background: rgba(219,146,63,.07); color: #e7c69b; }
+  .block-note { font-size: 13px; line-height: 1.7; padding: 13px 15px; background: var(--ink-700); border-radius: var(--radius-sm); border: 1px solid var(--line-soft); }
+
+  /* ---- Lists (house rules / nuances) ---- */
+  .item { background: var(--ink-700); border: 1px solid var(--line-soft); border-radius: var(--radius-sm); padding: 13px 15px; margin-bottom: 9px; }
+  .item .item-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+  .item .tags { display: flex; gap: 6px; }
+  .tag { font-size: 10px; letter-spacing: .5px; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: 5px; background: var(--ink-600); color: var(--brass); border: 1px solid var(--line); }
+  .item .item-del { background: none; border: none; color: var(--cream-faint); cursor: pointer; font-size: 16px; line-height: 1; }
+  .item .item-del:hover { color: var(--oxblood); }
+  .item .item-text { font-size: 13px; line-height: 1.6; }
+
+  .empty { text-align: center; color: var(--cream-faint); font-size: 13px; padding: 26px 10px; font-style: italic; }
+
+  .status { font-size: 12px; color: var(--cream-faint); margin-top: 10px; min-height: 16px; }
+  .status.ok { color: var(--brass); }
+  .status.err { color: #e08a74; }
+
+  /* ---- Loading ---- */
+  .loading { text-align: center; padding: 50px 20px; }
+  .loading .spin { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--brass); border-radius: 50%; margin: 0 auto 16px; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading .l-text { color: var(--cream-dim); font-size: 13px; }
+
+  .helper { font-size: 12px; color: var(--cream-faint); line-height: 1.6; }
+  .helper code { font-family: var(--mono); background: var(--ink-700); padding: 1px 5px; border-radius: 4px; color: var(--brass); }
+
+  .sync-flag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; color: var(--cream-faint); }
+  .sync-flag .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cream-faint); }
+  .sync-flag.live .dot { background: var(--brass); box-shadow: 0 0 6px var(--brass); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div class="brand-name">Maverick UW Agent
+        <span class="sub">Underwriting Intelligence</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div id="syncFlag" class="sync-flag"><span class="dot"></span> <span id="syncText">local</span></div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="active" data-tab="underwrite">Underwrite</button>
+    <button data-tab="analysis">Analysis</button>
+    <button data-tab="house">House Rules</button>
+    <button data-tab="memory">Nuance Memory</button>
+  </nav>
+
+  <!-- ===================== UNDERWRITE ===================== -->
+  <section class="panel active" id="panel-underwrite">
+    <div class="card">
+      <h2 class="section-title">Run a file</h2>
+      <p class="section-sub">Drop a merged loan file and run it against the investor matrix, your house rules, and learned nuances.</p>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div>
+          <label class="field-label">Investor</label>
+          <select id="investor">
+            <option value="NQM Funding">NQM Funding</option>
+            <option value="Deephaven">Deephaven</option>
+            <option value="Ellington">Ellington</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Program</label>
+          <select id="program">
+            <option>DSCR</option>
+            <option>Fix &amp; Flip</option>
+            <option>Ground-Up Construction</option>
+            <option>Bridge</option>
+            <option>Bank Statement</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div>
+          <label class="field-label">Borrower / Entity (optional)</label>
+          <input type="text" id="borrower" placeholder="e.g. Braukmann Holdings LLC" />
+        </div>
+        <div>
+          <label class="field-label">Loan number (optional)</label>
+          <input type="text" id="loanNum" placeholder="e.g. ML-20461" />
+        </div>
+      </div>
+
+      <label class="field-label">Loan file (PDF)</label>
+      <div class="dropzone" id="dropzone">
+        <div class="dz-icon">&#9671;</div>
+        <div class="dz-main">Drop the merged PDF here, or click to browse</div>
+        <div class="dz-sub">1003, appraisal, title, insurance, bank statements &mdash; one combined file works best</div>
+        <input type="file" id="fileInput" accept="application/pdf" hidden />
+      </div>
+      <div id="fileChipWrap"></div>
+
+      <label class="field-label" style="margin-top:16px;">Quick context for this deal (optional)</label>
+      <textarea id="contextNotes" rows="2" placeholder="e.g. Cash-out refi, borrower has 3 other DSCR loans with us, STR income via AirDNA..."></textarea>
+    </div>
+
+    <div class="card">
+      <label class="field-label">What to weigh this file against</label>
+      <div class="toggle-row">
+        <div class="tr-text">Investor matrix
+          <small id="invLabel">NQM Funding &mdash; DSCR</small>
+        </div>
+        <label class="switch"><input type="checkbox" id="tglInvestor" checked /><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="tr-text">My house rules
+          <small id="houseCount">No house rules saved yet</small>
+        </div>
+        <label class="switch"><input type="checkbox" id="tglHouse" checked /><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="tr-text">Nuance memory
+          <small id="nuanceCount">0 nuances saved</small>
+        </div>
+        <label class="switch"><input type="checkbox" id="tglNuance" checked /><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="runBtn" disabled>Run underwrite</button>
+    <div class="status" id="runStatus"></div>
+  </section>
+
+  <!-- ===================== ANALYSIS ===================== -->
+  <section class="panel" id="panel-analysis">
+    <div id="analysisBody">
+      <div class="card"><div class="empty">No analysis yet. Run a file from the Underwrite tab.</div></div>
+    </div>
+  </section>
+
+  <!-- ===================== HOUSE RULES ===================== -->
+  <section class="panel" id="panel-house">
+    <div class="card">
+      <h2 class="section-title">House rules</h2>
+      <p class="section-sub">Your own underwriting criteria &mdash; overlays, hard lines, anything beyond the investor matrix. Every file you run with this on gets explicitly checked against these, and the memo flags them right alongside the investor findings.</p>
+      <label class="field-label">Your guidelines &amp; notes</label>
+      <textarea id="houseRules" rows="16" placeholder="Write your rules in plain language, one idea per line. Examples:
+
+- We do not lend on rural zip codes regardless of what the investor allows.
+- Minimum 6 months reserves on every cash-out, even when the matrix says 3.
+- No first-time investors above 70% LTV.
+- Short-term rental income only counts at 80% of a 12-month AirDNA projection.
+- Flag any property where the appraisal is more than 90 days old at submission.
+- Any borrower with a prior payoff dispute with us = manual review, note it loudly.
+
+Paste an investor matrix in here too if you want it weighed verbatim."></textarea>
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button class="btn btn-primary" id="saveHouseBtn" style="flex:1;">Save house rules</button>
+        <button class="btn btn-ghost" id="clearHouseBtn">Clear</button>
+      </div>
+      <div class="status" id="houseStatus"></div>
+    </div>
+    <div class="card">
+      <p class="helper">House rules are saved to your browser immediately and synced to the cloud store when it's connected (status shown top-right). They apply to every run while the <strong>My house rules</strong> toggle is on. This is for your full ruleset &mdash; use <strong>Nuance Memory</strong> for quick one-line learnings you want tagged by investor and category.</p>
+    </div>
+  </section>
+
+  <!-- ===================== NUANCE MEMORY ===================== -->
+  <section class="panel" id="panel-memory">
+    <div class="card">
+      <h2 class="section-title">Nuance memory</h2>
+      <p class="section-sub">Short, tagged learnings the agent factors into every analysis. Teach it the exceptions and overlays you discover deal by deal.</p>
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div>
+          <label class="field-label">Investor</label>
+          <select id="nuanceInvestor">
+            <option value="All">All investors</option>
+            <option value="NQM Funding">NQM Funding</option>
+            <option value="Deephaven">Deephaven</option>
+            <option value="Ellington">Ellington</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Category</label>
+          <select id="nuanceCategory">
+            <option>DSCR</option><option>LTV</option><option>Credit</option>
+            <option>Property</option><option>Entity</option><option>Reserves</option>
+            <option>Income</option><option>Title</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <label class="field-label">Nuance</label>
+      <textarea id="nuanceText" rows="2" placeholder="e.g. NQM allows STR income via AirDNA at 90% of projected with 12mo reserves."></textarea>
+      <button class="btn btn-primary" id="addNuanceBtn" style="margin-top:12px; width:100%;">Add nuance</button>
+      <div class="status" id="nuanceStatus"></div>
+    </div>
+    <div class="card">
+      <label class="field-label">Saved nuances</label>
+      <div id="nuanceList"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  /* ---------- State ---------- */
+  const S = { houseRules: "", nuances: [] };
+  let pdfBase64 = null, pdfName = null, lastMemo = null, cloudLive = false;
+
+  const $ = id => document.getElementById(id);
+
+  /* ---------- Tabs ---------- */
+  document.querySelectorAll("nav.tabs button").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll("nav.tabs button").forEach(x => x.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      $("panel-" + b.dataset.tab).classList.add("active");
+    };
+  });
+
+  /* ---------- Persistence (localStorage + cloud) ---------- */
+  const LS_KEY = "maverick_uw_state_v1";
+
+  function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {} }
+
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) { const o = JSON.parse(raw); S.houseRules = o.houseRules || ""; S.nuances = o.nuances || []; }
+    } catch (e) {}
+  }
+
+  async function syncFromCloud() {
+    try {
+      const r = await fetch("/api/memory", { method: "GET" });
+      if (!r.ok) throw new Error("no cloud");
+      const o = await r.json();
+      if (o && (o.houseRules !== undefined || o.nuances)) {
+        // Cloud wins on load, but keep local if cloud is empty and local has data
+        if (o.houseRules) S.houseRules = o.houseRules;
+        if (Array.isArray(o.nuances) && o.nuances.length) S.nuances = o.nuances;
+        saveLocal();
+      }
+      setCloud(true);
+    } catch (e) { setCloud(false); }
+  }
+
+  async function saveCloud() {
+    try {
+      const r = await fetch("/api/memory", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(S)
+      });
+      setCloud(r.ok);
+      return r.ok;
+    } catch (e) { setCloud(false); return false; }
+  }
+
+  function setCloud(live) {
+    cloudLive = live;
+    $("syncFlag").classList.toggle("live", live);
+    $("syncText").textContent = live ? "cloud synced" : "local only";
+  }
+
+  async function persist() { saveLocal(); await saveCloud(); }
+
+  /* ---------- File handling ---------- */
+  const dz = $("dropzone"), fi = $("fileInput");
+  dz.onclick = () => fi.click();
+  dz.ondragover = e => { e.preventDefault(); dz.classList.add("drag"); };
+  dz.ondragleave = () => dz.classList.remove("drag");
+  dz.ondrop = e => { e.preventDefault(); dz.classList.remove("drag"); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); };
+  fi.onchange = e => { if (e.target.files[0]) handleFile(e.target.files[0]); };
+
+  function handleFile(file) {
+    if (file.type !== "application/pdf") { setStatus("runStatus", "That's not a PDF &mdash; please drop a PDF loan file.", "err"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      pdfBase64 = reader.result.split(",")[1];
+      pdfName = file.name;
+      $("fileChipWrap").innerHTML =
+        `<div class="file-chip">&#9671; ${escAttr(file.name)} <button title="Remove" onclick="clearFile()">&times;</button></div>`;
+      $("runBtn").disabled = false;
+      setStatus("runStatus", "", "");
+    };
+    reader.readAsDataURL(file);
+  }
+  function clearFile() { pdfBase64 = null; pdfName = null; $("fileChipWrap").innerHTML = ""; $("runBtn").disabled = true; fi.value = ""; }
+
+  /* ---------- Toggle labels ---------- */
+  function refreshToggleLabels() {
+    $("invLabel").textContent = $("investor").value + " \u2014 " + $("program").value;
+    const hr = S.houseRules.trim();
+    $("houseCount").textContent = hr ? (hr.split("\n").filter(l => l.trim()).length + " line(s) of house rules") : "No house rules saved yet";
+    $("nuanceCount").textContent = S.nuances.length + " nuance" + (S.nuances.length === 1 ? "" : "s") + " saved";
+  }
+  $("investor").onchange = refreshToggleLabels;
+  $("program").onchange = refreshToggleLabels;
+
+  /* ---------- House rules ---------- */
+  $("saveHouseBtn").onclick = async () => {
+    S.houseRules = $("houseRules").value;
+    setStatus("houseStatus", "Saving\u2026", "");
+    await persist();
+    refreshToggleLabels();
+    setStatus("houseStatus", cloudLive ? "Saved and synced to cloud." : "Saved locally (cloud offline).", "ok");
+  };
+  $("clearHouseBtn").onclick = () => {
+    if (!confirm("Clear all house rules? This can't be undone unless you've backed them up.")) return;
+    $("houseRules").value = "";
+    S.houseRules = "";
+    persist(); refreshToggleLabels();
+    setStatus("houseStatus", "House rules cleared.", "");
+  };
+
+  /* ---------- Nuances ---------- */
+  $("addNuanceBtn").onclick = async () => {
+    const text = $("nuanceText").value.trim();
+    if (!text) { setStatus("nuanceStatus", "Type a nuance first.", "err"); return; }
+    S.nuances.unshift({ id: Date.now(), investor: $("nuanceInvestor").value, category: $("nuanceCategory").value, text });
+    $("nuanceText").value = "";
+    await persist(); renderNuances(); refreshToggleLabels();
+    setStatus("nuanceStatus", "Added.", "ok");
+  };
+
+  function deleteNuance(id) {
+    S.nuances = S.nuances.filter(n => n.id !== id);
+    persist(); renderNuances(); refreshToggleLabels();
+  }
+
+  function renderNuances() {
+    const el = $("nuanceList");
+    if (!S.nuances.length) { el.innerHTML = `<div class="empty">No nuances yet. Add the first overlay or exception you want the agent to remember.</div>`; return; }
+    el.innerHTML = S.nuances.map(n => `
+      <div class="item">
+        <div class="item-top">
+          <div class="tags"><span class="tag">${escHtml(n.investor)}</span><span class="tag">${escHtml(n.category)}</span></div>
+          <button class="item-del" title="Delete" onclick="deleteNuance(${n.id})">&times;</button>
+        </div>
+        <div class="item-text">${escHtml(n.text)}</div>
+      </div>`).join("");
+  }
+
+  /* ---------- Run underwrite ---------- */
+  $("runBtn").onclick = async () => {
+    if (!pdfBase64) return;
+    document.querySelector('nav.tabs button[data-tab="analysis"]').click();
+    $("analysisBody").innerHTML = `<div class="card"><div class="loading"><div class="spin"></div><div class="l-text">Reading the file and running it against ${escHtml($("investor").value)} ${escHtml($("program").value)}\u2026</div></div></div>`;
+
+    const payload = {
+      pdf: pdfBase64,
+      investor: $("investor").value,
+      program: $("program").value,
+      borrower: $("borrower").value.trim(),
+      loanNumber: $("loanNum").value.trim(),
+      contextNotes: $("contextNotes").value.trim(),
+      useInvestor: $("tglInvestor").checked,
+      houseRules: $("tglHouse").checked ? S.houseRules.trim() : "",
+      nuances: $("tglNuance").checked ? S.nuances : []
+    };
+
+    try {
+      const r = await fetch("/api/analyze", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Analysis failed.");
+      lastMemo = data;
+      renderMemo(data);
+    } catch (e) {
+      $("analysisBody").innerHTML = `<div class="card"><div class="block-warn">Couldn't complete the analysis: ${escHtml(e.message)}<br><br>Check that the Netlify function is deployed and <code>ANTHROPIC_API_KEY</code> is set in your site environment.</div></div>`;
+    }
+  };
+
+  /* ---------- Render credit memo ---------- */
+  function renderMemo(d) {
+    const v = (d.verdict || "Needs More Info").toLowerCase();
+    let cls = "info", seal = "NEEDS REVIEW";
+    if (v.includes("approve") && v.includes("condition")) { cls = "conditions"; seal = "APPROVE w/ COND."; }
+    else if (v.includes("approve")) { cls = "approve"; seal = "APPROVED"; }
+    else if (v.includes("decline") || v.includes("suspend")) { cls = "decline"; seal = "DECLINE"; }
+
+    const headerLine = [d.borrower, d.loanNumber, d.investor + " " + d.program].filter(Boolean).join("  \u00b7  ");
+
+    let html = `<div class="card">
+      <div class="verdict-wrap">
+        <div class="seal ${cls}"><div class="seal-txt">${seal}</div></div>
+        <div class="verdict-meta">
+          <h3>${escHtml(d.verdict || "Needs More Info")}</h3>
+          <div class="vm-line">${escHtml(headerLine)}</div>
+        </div>
+      </div>`;
+
+    if (Array.isArray(d.metrics) && d.metrics.length) {
+      html += `<div class="metrics">` + d.metrics.map(m =>
+        `<div class="metric"><div class="m-label">${escHtml(m.label)}</div><div class="m-val">${escHtml(m.value)}</div></div>`
+      ).join("") + `</div>`;
+    }
+
+    if (d.summary) html += `<div class="section-label">Executive summary</div><div class="block-note">${nl(escHtml(d.summary))}</div>`;
+
+    if (Array.isArray(d.categories) && d.categories.length) {
+      html += `<div class="section-label">Guideline breakdown</div>`;
+      d.categories.forEach((c, i) => {
+        const st = (c.status || "warn").toLowerCase();
+        const pill = st === "pass" ? "pass" : st === "fail" ? "fail" : "warn";
+        html += `<div class="cat" id="cat-${i}">
+          <div class="cat-head" onclick="toggleCat(${i})">
+            <span class="cat-name">${escHtml(c.name)}</span>
+            <span class="pill ${pill}">${escHtml(c.status || "Review")}</span>
+            <span class="cat-chev">&rsaquo;</span>
+          </div>
+          <div class="cat-body"><div class="cat-body-inner">${nl(escHtml(c.detail || ""))}</div></div>
+        </div>`;
+      });
+    }
+
+    if (Array.isArray(d.houseFindings) && d.houseFindings.length) {
+      html += `<div class="section-label">House rule findings</div><div class="block-warn">` +
+        d.houseFindings.map(f => "\u2022 " + escHtml(f)).join("<br>") + `</div>`;
+    }
+
+    if (Array.isArray(d.conditions) && d.conditions.length) {
+      html += `<div class="section-label">Conditions / open items</div><div class="block-warn">` +
+        d.conditions.map((c, i) => (i + 1) + ". " + escHtml(c)).join("<br>") + `</div>`;
+    }
+
+    if (d.dealNotes) html += `<div class="section-label">Deal notes</div><div class="block-note">${nl(escHtml(d.dealNotes))}</div>`;
+
+    html += `<div style="display:flex; gap:10px; margin-top:18px;">
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="copyMemo()">Copy memo</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="window.print()">Print / PDF</button>
+    </div></div>`;
+
+    $("analysisBody").innerHTML = html;
+    if (d.categories && d.categories[0]) $("cat-0").classList.add("open");
+  }
+
+  function toggleCat(i) { $("cat-" + i).classList.toggle("open"); }
+
+  function copyMemo() {
+    if (!lastMemo) return;
+    const d = lastMemo;
+    let t = `MAVERICK UNDERWRITING MEMO\n${"=".repeat(40)}\n`;
+    t += `Verdict: ${d.verdict}\n`;
+    if (d.borrower) t += `Borrower: ${d.borrower}\n`;
+    if (d.loanNumber) t += `Loan #: ${d.loanNumber}\n`;
+    t += `Program: ${d.investor} ${d.program}\n\n`;
+    if (d.metrics) d.metrics.forEach(m => t += `${m.label}: ${m.value}\n`);
+    if (d.summary) t += `\nSUMMARY\n${d.summary}\n`;
+    if (d.categories) { t += `\nGUIDELINE BREAKDOWN\n`; d.categories.forEach(c => t += `\n[${(c.status||"").toUpperCase()}] ${c.name}\n${c.detail}\n`); }
+    if (d.houseFindings && d.houseFindings.length) { t += `\nHOUSE RULE FINDINGS\n`; d.houseFindings.forEach(f => t += `- ${f}\n`); }
+    if (d.conditions && d.conditions.length) { t += `\nCONDITIONS\n`; d.conditions.forEach((c, i) => t += `${i+1}. ${c}\n`); }
+    if (d.dealNotes) t += `\nDEAL NOTES\n${d.dealNotes}\n`;
+    navigator.clipboard.writeText(t).then(() => alert("Memo copied to clipboard."));
+  }
+
+  /* ---------- Helpers ---------- */
+  function escHtml(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function escAttr(s) { return escHtml(s).replace(/"/g, "&quot;"); }
+  function nl(s) { return s.replace(/\n/g, "<br>"); }
+  function setStatus(id, msg, kind) { const e = $(id); e.innerHTML = msg; e.className = "status" + (kind ? " " + kind : ""); }
+
+  /* ---------- Init ---------- */
+  (async function init() {
+    loadLocal();
+    $("houseRules").value = S.houseRules;
+    renderNuances();
+    refreshToggleLabels();
+    await syncFromCloud();
+    $("houseRules").value = S.houseRules;
+    renderNuances();
+    refreshToggleLabels();
+  })();
+</script>
+</body>
+</html>
