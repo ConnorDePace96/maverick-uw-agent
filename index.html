@@ -560,12 +560,26 @@ Paste an investor matrix in here too if you want it weighed verbatim."></textare
     };
 
     try {
-      const r = await fetch("/api/analyze", {
+      // Start a background underwriting job, then poll for the finished memo.
+      const startRes = await fetch("/api/analyze", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Analysis failed.");
+      const startData = await startRes.json();
+      if (!startRes.ok || !startData.jobId) throw new Error(startData.error || "Could not start analysis.");
+      const jobId = startData.jobId;
+
+      let data = null;
+      const startedAt = Date.now();
+      const maxMs = 10 * 60 * 1000; // 10 minutes
+      while (Date.now() - startedAt < maxMs) {
+        await new Promise(function (res) { setTimeout(res, 3000); });
+        const pollRes = await fetch("/api/analyze-status?id=" + encodeURIComponent(jobId), { method: "GET" });
+        const pollData = await pollRes.json();
+        if (pollData.status === "done" && pollData.memo) { data = pollData.memo; break; }
+        if (pollData.status === "error") { throw new Error(pollData.error || "Analysis failed."); }
+      }
+      if (!data) throw new Error("Analysis timed out. Try a smaller file or run it again.");
       lastMemo = data;
       renderMemo(data);
     } catch (e) {
