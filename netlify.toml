@@ -11,6 +11,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/analyze-status"
+  to = "/.netlify/functions/analyze-status"
+  status = 200
+
+[[redirects]]
   from = "/api/memory"
   to = "/.netlify/functions/memory"
   status = 200
